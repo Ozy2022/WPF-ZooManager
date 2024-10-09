@@ -38,35 +38,85 @@ namespace WPF_ZooManager
 
         private void ShowZoos()
         {
-            // So what it's going to do is this SQL adapter will
-            // run this query into that connection.
-            //The SqlDataAdapter can be imagend like Interfce to make
-            //Tables useble by C#-Objects
-            string query = "select * from Zoo";
-            SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(query, sqlConnection);
-
-            //So what this data table allows us is to store data
-            //from tables within a object
-            using (sqlDataAdapter)
+            //Note that is Always important to have try,catch
+            //when you dealing with the data connection
+            
+            try
             {
-                DataTable zooTable = new DataTable();
+                // So what it's going to do is this SQL adapter will
+                // run this query into that connection.
+                //The SqlDataAdapter can be imagend like Interfce to make
+                //Tables useble by C#-Objects
+                string query = "select * from Zoo";
+                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(query, sqlConnection);
 
-                //now we can run the SqlDataAdapter
-                sqlDataAdapter.Fill(zooTable);
+                //So what this data table allows us is to store data
+                //from tables within a object
+                using (sqlDataAdapter)
+                {
+                    DataTable zooTable = new DataTable();
 
-                //Which information of the Table in the DataTable
-                //should be shown in our listBox?
-                listZoos.DisplayMemberPath = "Location";
+                    //now we can run the SqlDataAdapter
+                    sqlDataAdapter.Fill(zooTable);
 
-                //Which value should be delivered when an item from
-                //a list box is selected?
-                listZoos.SelectedValuePath = "Id";
+                    //Which information of the Table in the DataTable
+                    //should be shown in our listBox?
+                    listZoos.DisplayMemberPath = "Location";
 
-                //The Reference to the data the listBox should populate.
-                listZoos.ItemsSource = zooTable.DefaultView;
+                    //Which value should be delivered when an item from
+                    //a list box is selected?
+                    listZoos.SelectedValuePath = "Id";
+
+                    //The Reference to the data the listBox should populate.
+                    listZoos.ItemsSource = zooTable.DefaultView;
+                }
+            }
+            catch (Exception ex) 
+            {
+                MessageBox.Show(ex.ToString());
             }
         }
 
-        
+
+        private void ShowAssociatedAnimals()
+        {
+            try
+            {
+                string query = "select * from Animal a inner join ZooAnimal za " +
+                    "on a.Id = za.AnimalId where za.ZooId = @ZooId";
+
+                //Now in order to use @ZooId as a value we should
+                //use SqlCommand object
+
+                SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+
+                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand);
+
+                using (sqlDataAdapter)
+                {
+
+                    sqlCommand.Parameters.AddWithValue("@ZooId", listZoos.SelectedValue);
+
+                    DataTable animalTable = new DataTable();
+
+                    sqlDataAdapter.Fill(animalTable);
+
+                    listAssociatedAnimals.DisplayMemberPath = "Name";
+
+                    listAssociatedAnimals.SelectedValuePath = "Id";
+
+                    listAssociatedAnimals.ItemsSource = animalTable.DefaultView;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        private void listZoos_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ShowAssociatedAnimals();
+        }
     }
 }
