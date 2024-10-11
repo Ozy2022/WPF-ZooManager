@@ -34,6 +34,7 @@ namespace WPF_ZooManager
             string connectionString = ConfigurationManager.ConnectionStrings["WPF_ZooManager.Properties.Settings.ZoosDBConnectionString"].ConnectionString;
             sqlConnection = new SqlConnection(connectionString);
             ShowZoos();
+            ShowAllAnimals();
         }
 
         private void ShowZoos()
@@ -114,9 +115,48 @@ namespace WPF_ZooManager
             }
         }
 
+        private void ShowAllAnimals()
+        {
+
+            try
+            {
+
+                string query = "select * from Animal";
+                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(query, sqlConnection);
+
+                using (sqlDataAdapter)
+                {
+                    DataTable animalTable = new DataTable();
+
+                    //now we can run the SqlDataAdapter
+                    sqlDataAdapter.Fill(animalTable);
+
+                    //Which information of the Table in the DataTable
+                    //should be shown in our listBox?
+                    ListAllAnimals.DisplayMemberPath = "Name";
+
+                    //Which value should be delivered when an item from
+                    //a list box is selected?
+                    ListAllAnimals.SelectedValuePath = "Id";
+
+                    //The Reference to the data the listBox should populate.
+                    ListAllAnimals.ItemsSource = animalTable.DefaultView;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
         private void listZoos_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ShowAssociatedAnimals();
+        }
+
+        private void AllAnimals_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ShowAllAnimals();
         }
     }
 }
