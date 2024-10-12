@@ -9,4 +9,6 @@ WPF Zoo Manager is a desktop application built using C# and WPF, designed to man
 - **Interactive UI:** Uses WPF controls like ListBox for data presentation.
 - **Database Integration:** SQL Server connection for CRUD operations on Zoo and Animal tables.
 
+
+
 ![Zoo Manager](https://github.com/user-attachments/assets/d219ee9c-4b37-4fa5-88ff-e2f458988b34)
